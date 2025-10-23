@@ -1,6 +1,6 @@
 # sdvx-jacket-stier
 
-A tool to draw SDVX charts' S-Tier rankings on jackets
+A tool to draw SDVX charts' PUC/S Tier info on jackets
 
 ## Requirements
 

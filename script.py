@@ -50,7 +50,7 @@ def draw_jacket(img, chart_list):
     margin_ratio = 0.07 
 
     # Scale font by image height
-    font_size = int(height * 0.1)
+    font_size = int(height * 0.08)
     try:
         font = ImageFont.truetype("arial.ttf", font_size)
     except OSError:
@@ -76,11 +76,18 @@ def draw_jacket(img, chart_list):
 
     # Draw each line with its corresponding color
     for i, chart in enumerate(chart_list):
-        sTier = chart.get('sTier', 'N/A')
-        if isinstance(sTier, (float, int)):
-            line_text = f"{sTier:.1f}"
+        sTier = chart.get('sTier')
+        pucTier = chart.get('pucTier')
+
+        # Determine display text depending on what exists
+        if sTier is not None and pucTier is not None:
+            line_text = f"{sTier:.1f}S-{pucTier:.1f}P"
+        elif sTier is not None:
+            line_text = f"{sTier:.1f}S"
+        elif pucTier is not None:
+            line_text = f"{pucTier:.1f}P"
         else:
-            line_text = str(sTier)
+            continue
             
         fill_color = difficulty_colors.get(chart.get('difficulty'), (255, 255, 255, 255))
 
@@ -89,13 +96,13 @@ def draw_jacket(img, chart_list):
             line_text,
             font=font,
             fill=fill_color,
-            stroke_width=int(font_size * 0.1),
+            stroke_width=max(int(font_size * 0.1), 1),
             stroke_fill=(0, 0, 0, 255)
         )
 
     return img
 
-def stier_jacket(base_dir: str, chart_data: dict):
+def tier_jacket(base_dir: str, chart_data: dict):
     """
     If a backup doesn't exist, create one and annotate the original.
     If a backup exists, use it as the base and overwrite the normal PNG.
@@ -150,7 +157,8 @@ def stier_jacket(base_dir: str, chart_data: dict):
 
     print("All jackets edited.")
 
-def fetch_stier(github_url: str = "https://raw.githubusercontent.com/zkrising/Tachi/refs/heads/main/seeds/collections/charts-sdvx.json"):
+def fetch_tier(github_url: str = "https://raw.githubusercontent.com/zkrising/Tachi/refs/heads/main/seeds/collections/charts-sdvx.json"):
+    print("Fetching charts info")
     response = requests.get(github_url)
     response.raise_for_status()
     
@@ -164,9 +172,11 @@ def fetch_stier(github_url: str = "https://raw.githubusercontent.com/zkrising/Ta
         s_tier = entry["data"].get("sTier")
         s_tier_value = s_tier.get("value") if s_tier else None
 
-        if s_tier_value is None:
+        puc_tier = entry["data"].get("pucTier")
+        puc_tier_value = puc_tier.get("value") if puc_tier else None
+
+        if s_tier_value is None and puc_tier_value is None:
             continue
-        
         if in_game_id is None:
             continue 
         
@@ -175,7 +185,8 @@ def fetch_stier(github_url: str = "https://raw.githubusercontent.com/zkrising/Ta
         
         result[in_game_id].append({
             "difficulty": difficulty,
-            "sTier": s_tier_value
+            "sTier": s_tier_value,
+            "pucTier": puc_tier_value
         })
     
     return result
@@ -204,8 +215,8 @@ def main():
         return
 
     if choice == "1":
-        data = fetch_stier()
-        stier_jacket(folder, data)
+        data = fetch_tier()
+        tier_jacket(folder, data)
     else:
         restore_backups(folder)
 

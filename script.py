@@ -81,11 +81,11 @@ def draw_jacket(img, chart_list):
 
         # Determine display text depending on what exists
         if sTier is not None and pucTier is not None:
-            line_text = f"{sTier:.1f}S-{pucTier:.1f}P"
+            line_text = f"{sTier:.1f}S-{pucTier}P"
         elif sTier is not None:
             line_text = f"{sTier:.1f}S"
         elif pucTier is not None:
-            line_text = f"{pucTier:.1f}P"
+            line_text = f"{pucTier}P"
         else:
             continue
             
@@ -173,7 +173,7 @@ def fetch_tier(github_url: str = "https://raw.githubusercontent.com/zkrising/Tac
         s_tier_value = s_tier.get("value") if s_tier else None
 
         puc_tier = entry["data"].get("pucTier")
-        puc_tier_value = puc_tier.get("value") if puc_tier else None
+        puc_tier_value = puc_tier.get("text") if puc_tier else None
 
         if s_tier_value is None and puc_tier_value is None:
             continue

@@ -200,12 +200,14 @@ def select_folder():
     return folder_selected
 
 def main():
-    print("1. Draw jacket")
-    print("2. Restore backups")
-    choice = input("Select an option (1 or 2): ").strip()
+    print("1. Draw S Tier info")
+    print("2. Draw PUC Tier info")
+    print("3. Draw S + PUC Tier info")
+    print("4. Restore backups")
+    choice = input("Select an option: ").strip()
 
-    if choice not in {"1", "2"}:
-        print("It's not that hard to type 1 or 2 man")
+    if choice not in {"1", "2", "3", "4"}:
+        print("It's not that hard to type a number man")
         return
 
     print("Select music folder (should be /contents/data/music)")
@@ -214,11 +216,28 @@ def main():
         print("No folder selected. Exiting.")
         return
 
-    if choice == "1":
-        data = fetch_tier()
-        tier_jacket(folder, data)
-    else:
+    if choice == "4":
         restore_backups(folder)
+        return
+
+    data = fetch_tier()
+
+    if choice == "1":
+        for k, charts in data.items():
+            for c in charts:
+                c["pucTier"] = None  # remove puc tier data
+        tier_jacket(folder, data)
+
+    elif choice == "2":
+        for k, charts in data.items():
+            for c in charts:
+                c["sTier"] = None  # remove s tier data
+        tier_jacket(folder, data)
+
+    elif choice == "3":
+        tier_jacket(folder, data)
+
 
 if __name__ == "__main__":
     main()
+
